@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import { Logomark } from "../Logomark";
 
 // The backend repo is private, so it isn't linked from a public page — only
 // the frontend is public. Don't claim "open source" here; it would be
@@ -28,6 +29,8 @@ const STEPS = [
       "labelled as such, not hidden.",
   },
 ];
+
+const STACK = ["Claude", "Amazon Bedrock", "ChromaDB", "Docker", "FastAPI", "React"];
 
 const FEATURES = [
   {
@@ -59,46 +62,57 @@ const FEATURES = [
 export default function Landing() {
   return (
     <div className="landing">
-      <header className="landing-nav">
-        <span className="landing-brand">Debug Agent</span>
-        <div className="landing-nav-links">
-          <a href={FRONTEND_REPO} target="_blank" rel="noreferrer">
-            GitHub
-          </a>
-          <Link to="/app" className="landing-nav-cta">
-            Launch dashboard
+      <div className="landing-hero-bg">
+        <header className="landing-nav">
+          <Link to="/" className="landing-brand">
+            <Logomark size={28} />
+            Debug Agent
           </Link>
-        </div>
-      </header>
+          <nav className="landing-nav-links">
+            <a href="#how-it-works">How it works</a>
+            <a href="#features">Features</a>
+            <a href="#stack">Built with</a>
+          </nav>
+          <div className="landing-nav-actions">
+            <a href={FRONTEND_REPO} target="_blank" rel="noreferrer">
+              GitHub
+            </a>
+            <Link to="/app" className="landing-nav-cta">
+              Launch dashboard
+            </Link>
+          </div>
+        </header>
 
-      <section className="landing-hero">
-        <p className="landing-eyebrow">Agentic RAG · Claude on Amazon Bedrock</p>
-        <h1>
-          Don't just explain the bug.
-          <br />
-          Prove the fix works.
-        </h1>
-        <p className="landing-subhead">
-          Debug Agent retrieves the relevant documentation, reasons about the
-          root cause, proposes a fix, and verifies it by actually running it in
-          an isolated sandbox — before it tells you the bug is solved.
-        </p>
-        <div className="landing-cta-row">
-          <Link to="/app" className="landing-cta-primary">
-            Launch the dashboard →
-          </Link>
-          <a
-            href={FRONTEND_REPO}
-            target="_blank"
-            rel="noreferrer"
-            className="landing-cta-secondary"
-          >
-            View frontend source
-          </a>
-        </div>
-      </section>
+        <section className="landing-hero">
+          <Logomark size={56} />
+          <h1>
+            Don't just explain the bug.
+            <br />
+            Prove the fix works.
+          </h1>
+          <p className="landing-subhead">
+            Debug Agent retrieves the relevant documentation, reasons about the
+            root cause, proposes a fix, and verifies it by actually running it
+            in an isolated sandbox — before it tells you the bug is solved.
+          </p>
+          <div className="landing-cta-row">
+            <Link to="/app" className="landing-cta-primary">
+              Launch the dashboard
+            </Link>
+          </div>
 
-      <section className="landing-section">
+          <div className="landing-trust">
+            <p>Built with</p>
+            <div className="landing-trust-row">
+              {STACK.map((name) => (
+                <span key={name}>{name}</span>
+              ))}
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <section className="landing-section" id="how-it-works">
         <h2>How it works</h2>
         <div className="landing-steps">
           {STEPS.map((step, index) => (
@@ -111,7 +125,7 @@ export default function Landing() {
         </div>
       </section>
 
-      <section className="landing-section landing-section-alt">
+      <section className="landing-section landing-section-alt" id="features">
         <h2>Built for trust, not just answers</h2>
         <div className="landing-feature-grid">
           {FEATURES.map((feature) => (
@@ -123,20 +137,7 @@ export default function Landing() {
         </div>
       </section>
 
-      <section className="landing-section landing-stack">
-        <h2>Built with</h2>
-        <div className="landing-badges">
-          {["Claude", "Amazon Bedrock", "ChromaDB", "Docker", "FastAPI", "React"].map(
-            (name) => (
-              <span className="landing-badge" key={name}>
-                {name}
-              </span>
-            ),
-          )}
-        </div>
-      </section>
-
-      <footer className="landing-footer">
+      <footer className="landing-footer" id="stack">
         <p>
           In active development.{" "}
           <a href={FRONTEND_REPO} target="_blank" rel="noreferrer">

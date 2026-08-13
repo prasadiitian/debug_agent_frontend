@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
+import { Logomark } from "../Logomark";
 import type { LogEntry } from "../useDebugSession";
 import { useDebugSession } from "../useDebugSession";
 import { useHealth } from "../useHealth";
@@ -21,6 +22,16 @@ function deriveHealthUrl(wsUrl: string): string {
   }
 }
 
+function formatRelativeTime(timestamp: number): string {
+  const seconds = Math.round((Date.now() - timestamp) / 1000);
+  if (seconds < 60) return "now";
+  const minutes = Math.round(seconds / 60);
+  if (minutes < 60) return `${minutes}m`;
+  const hours = Math.round(minutes / 60);
+  if (hours < 24) return `${hours}h`;
+  return `${Math.round(hours / 24)}d`;
+}
+
 const STEP_LABEL: Record<StepType, { marker: string; className: string }> = {
   session_start: { marker: "▶", className: "step-session" },
   tool_call: { marker: "→", className: "step-tool-call" },
@@ -31,7 +42,7 @@ const STEP_LABEL: Record<StepType, { marker: string; className: string }> = {
 };
 
 export default function Dashboard() {
-  const { status, entries, result, serverError, busy, submit, cancel } =
+  const { status, entries, result, serverError, busy, submit, cancel, clear } =
     useDebugSession(WS_URL);
   const { health, reachable } = useHealth(HEALTH_URL);
   const { sessions, record } = useRecentSessions();
@@ -41,6 +52,7 @@ export default function Dashboard() {
   const lastRequestRef = useRef({ errorText: "", context: "" });
 
   const canSubmit = status === "open" && !busy && errorText.trim().length > 0;
+  const hasContent = entries.length > 0 || result !== null;
 
   useEffect(() => {
     if (!result) return;
@@ -53,11 +65,15 @@ export default function Dashboard() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [result]);
 
-  const handleSubmit = (event: React.FormEvent) => {
-    event.preventDefault();
+  const doSubmit = () => {
     if (!canSubmit) return;
     lastRequestRef.current = { errorText, context };
     submit(errorText, context);
+  };
+
+  const handleSubmit = (event: React.FormEvent) => {
+    event.preventDefault();
+    doSubmit();
   };
 
   const restore = (session: RecentSession) => {
@@ -66,126 +82,132 @@ export default function Dashboard() {
     setContext(session.context);
   };
 
+  const newSession = () => {
+    if (busy) cancel();
+    clear();
+    setErrorText("");
+    setContext("");
+  };
+
   return (
-    <div className="app-shell">
-      <header className="topbar">
-        <Link to="/" className="brand-link">
+    <div className="dash-shell">
+      <aside className="dash-sidebar">
+        <Link to="/" className="dash-brand">
+          <Logomark size={24} />
           Debug Agent
         </Link>
-        <span className={`status-badge status-${status}`}>{status}</span>
-        <div className="stat-strip">
-          <StatChip label="model" value={health?.model ?? "—"} degraded={!reachable} />
-          <StatChip
-            label="index"
-            value={health ? `${health.indexed_chunks.toLocaleString()} chunks` : "—"}
-            degraded={!reachable || health?.status === "degraded"}
-          />
-          <StatChip
-            label="sessions"
-            value={health ? String(health.active_sessions) : "—"}
-            degraded={!reachable}
-          />
-        </div>
-      </header>
 
-      <div className="workspace">
-        <aside className="sidebar">
-          <div className="panel">
-            <form className="request-form" onSubmit={handleSubmit}>
-              <label htmlFor="error-input">Error / stack trace</label>
-              <textarea
-                id="error-input"
-                rows={9}
-                value={errorText}
-                onChange={(event) => setErrorText(event.target.value)}
-                placeholder="Traceback (most recent call last): ..."
+        <button type="button" className="dash-new-session" onClick={newSession}>
+          <span>+</span> New session
+        </button>
+
+        <div className="dash-sidebar-label">Recent</div>
+        <div className="dash-recent-list">
+          {sessions.length === 0 ? (
+            <p className="dash-recent-empty">Nothing yet</p>
+          ) : (
+            sessions.map((session) => (
+              <button
+                key={session.id}
+                type="button"
+                className="dash-recent-item"
+                onClick={() => restore(session)}
                 disabled={busy}
-              />
+              >
+                <span
+                  className={`dot ${session.verified === true ? "verified" : "unverified"}`}
+                />
+                <span className="preview">{session.preview || "(empty)"}</span>
+                <span className="time">{formatRelativeTime(session.timestamp)}</span>
+              </button>
+            ))
+          )}
+        </div>
 
-              <label htmlFor="context-input">Context (optional)</label>
+        <div className="dash-sidebar-footer">
+          <span className={`status-dot status-${status}`} />
+          <span className={reachable ? "" : "unreachable"}>
+            {health?.model ?? "connecting…"}
+            {health ? ` · ${health.indexed_chunks.toLocaleString()} chunks` : ""}
+          </span>
+        </div>
+      </aside>
+
+      <main className="dash-main">
+        <div className="dash-scroll">
+          {!hasContent ? (
+            <div className="dash-empty">
+              <Logomark size={44} />
+              <h1>What error should we debug?</h1>
+            </div>
+          ) : (
+            <div className="dash-transcript">
+              {serverError && (
+                <div
+                  className={`banner ${serverError.fatal ? "banner-fatal" : "banner-warning"}`}
+                >
+                  {serverError.message}
+                </div>
+              )}
+
+              <div className="log">
+                {entries.map((entry) => (
+                  <LogLine key={entry.id} entry={entry} />
+                ))}
+                {busy && entries.length === 0 && (
+                  <p className="log-empty">Connecting to the agent…</p>
+                )}
+              </div>
+
+              {result && <ResultPanel result={result} />}
+            </div>
+          )}
+        </div>
+
+        <div className="dash-composer-wrap">
+          <form className="dash-composer" onSubmit={handleSubmit}>
+            <label htmlFor="error-input" className="sr-only">
+              Error or stack trace
+            </label>
+            <textarea
+              id="error-input"
+              rows={3}
+              value={errorText}
+              onChange={(event) => setErrorText(event.target.value)}
+              placeholder="Paste an error or traceback…"
+              disabled={busy}
+              onKeyDown={(event) => {
+                if (event.key === "Enter" && !event.shiftKey) {
+                  event.preventDefault();
+                  doSubmit();
+                }
+              }}
+            />
+            <div className="dash-composer-row">
+              <label htmlFor="context-input" className="sr-only">
+                Context
+              </label>
               <input
                 id="context-input"
                 type="text"
                 value={context}
                 onChange={(event) => setContext(event.target.value)}
-                placeholder="FastAPI 0.115, Python 3.11"
+                placeholder="Context (optional) — e.g. FastAPI 0.115, Python 3.11"
                 disabled={busy}
               />
-
-              <div className="form-actions">
-                <button type="submit" disabled={!canSubmit}>
-                  {busy ? "Running…" : "Debug"}
+              {busy ? (
+                <button type="button" className="dash-send dash-stop" onClick={cancel}>
+                  ■
                 </button>
-                <button type="button" onClick={cancel} disabled={!busy}>
-                  Cancel
+              ) : (
+                <button type="submit" className="dash-send" disabled={!canSubmit}>
+                  ↑
                 </button>
-              </div>
-            </form>
-          </div>
-
-          <div>
-            <div className="recent-header">Recent sessions</div>
-            {sessions.length === 0 ? (
-              <p className="recent-empty">Nothing yet — sessions you run appear here.</p>
-            ) : (
-              <div className="recent-list">
-                {sessions.map((session) => (
-                  <button
-                    key={session.id}
-                    type="button"
-                    className="recent-item"
-                    onClick={() => restore(session)}
-                    disabled={busy}
-                  >
-                    <span
-                      className={`dot ${session.verified === true ? "verified" : "unverified"}`}
-                    />
-                    <span className="preview">{session.preview || "(empty)"}</span>
-                  </button>
-                ))}
-              </div>
-            )}
-          </div>
-        </aside>
-
-        <section className="session-panel">
-          {serverError && (
-            <div className={`banner ${serverError.fatal ? "banner-fatal" : "banner-warning"}`}>
-              {serverError.message}
+              )}
             </div>
-          )}
-
-          <div className="log">
-            {entries.length === 0 && (
-              <p className="log-empty">
-                Submit an error to start a session — steps stream here live.
-              </p>
-            )}
-            {entries.map((entry) => (
-              <LogLine key={entry.id} entry={entry} />
-            ))}
-          </div>
-
-          {result && <ResultPanel result={result} />}
-        </section>
-      </div>
-    </div>
-  );
-}
-
-function StatChip({
-  label,
-  value,
-  degraded,
-}: {
-  label: string;
-  value: string;
-  degraded?: boolean;
-}) {
-  return (
-    <div className={`stat-chip ${degraded ? "degraded" : ""}`}>
-      <span className="label">{label}</span>
-      <span className="value">{value}</span>
+          </form>
+        </div>
+      </main>
     </div>
   );
 }

@@ -95,7 +95,13 @@ export function useDebugSession(wsUrl: string) {
     socket.send(JSON.stringify({ type: "cancel" }));
   }, []);
 
-  return { ...state, submit, cancel };
+  /** Blanks the transcript locally — e.g. "New session". Does not cancel a
+   * session already running on the server; call `cancel()` first for that. */
+  const clear = useCallback(() => {
+    setState((prev) => ({ ...prev, entries: [], result: null, serverError: null }));
+  }, []);
+
+  return { ...state, submit, cancel, clear };
 }
 
 function handleMessage(
