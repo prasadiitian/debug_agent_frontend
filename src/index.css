@@ -126,6 +126,8 @@ button:disabled {
   display: grid;
   grid-template-columns: 260px 1fr;
   height: 100vh;
+  background: var(--bg);
+  color: var(--text-primary);
 }
 
 .dash-sidebar {
@@ -520,15 +522,14 @@ button:disabled {
    this page is read once and scanned, not worked in all day.
    ========================================================================== */
 
-.landing {
-  /* Light theme, scoped to this page only — the dashboard stays dark since
-     that's the expected look for a developer/ops tool, but a marketing page
-     reads as more "corporate SaaS" in light mode. Re-declaring the same
-     custom-property names means every rule below (already written against
-     var(--bg)/var(--text-primary)/etc.) picks this up automatically. */
+.theme-light {
+  /* Shared light-theme token override — applied to both the landing page
+     and the dashboard. Re-declaring the same custom-property names means
+     every existing rule (already written against var(--bg)/var(--text-
+     primary)/etc.) picks this up automatically, no rule-by-rule changes. */
   color-scheme: light;
   --bg: #ffffff;
-  --surface: #f6f8fb;
+  --surface: #f7f8fa;
   --surface-elevated: #ffffff;
   --border: #e2e6ed;
   --border-strong: #cdd4e0;
@@ -545,7 +546,9 @@ button:disabled {
   --danger: #d92d20;
   --danger-dim: #d92d201a;
   --info: #6d4fe0;
+}
 
+.landing {
   min-height: 100vh;
   background: var(--bg);
   color: var(--text-primary);

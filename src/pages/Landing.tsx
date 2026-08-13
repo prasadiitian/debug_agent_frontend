@@ -61,7 +61,7 @@ const FEATURES = [
 
 export default function Landing() {
   return (
-    <div className="landing">
+    <div className="landing theme-light">
       <div className="landing-hero-bg">
         <header className="landing-nav">
           <Link to="/" className="landing-brand">

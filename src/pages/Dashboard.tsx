@@ -90,7 +90,7 @@ export default function Dashboard() {
   };
 
   return (
-    <div className="dash-shell">
+    <div className="dash-shell theme-light">
       <aside className="dash-sidebar">
         <Link to="/" className="dash-brand">
           <Logomark size={24} />
