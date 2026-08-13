@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { readAttachments, formatBytes } from "../attachments";
 import { Logomark } from "../Logomark";
+import { Markdown } from "../Markdown";
 import type { LogEntry } from "../useDebugSession";
 import { useDebugSession } from "../useDebugSession";
 import { useHealth } from "../useHealth";
@@ -293,7 +294,11 @@ function LogLine({ entry }: { entry: LogEntry }) {
   const { marker, className } = STEP_LABEL[entry.stepType];
 
   if (entry.stepType === "reasoning") {
-    return <p className={className}>{entry.content}</p>;
+    return (
+      <div className={className}>
+        <Markdown text={entry.content} />
+      </div>
+    );
   }
 
   if (entry.stepType === "tool_call") {
@@ -336,21 +341,21 @@ function ResultPanel({ result }: { result: import("../types").ResultPayload }) {
       {result.root_cause && (
         <div>
           <h3>Root cause</h3>
-          <p>{result.root_cause}</p>
+          <Markdown text={result.root_cause} />
         </div>
       )}
 
       {result.proposed_fix && (
         <div>
           <h3>Fix</h3>
-          <p className="pre">{result.proposed_fix}</p>
+          <Markdown text={result.proposed_fix} />
         </div>
       )}
 
       {result.verification && (
         <div>
           <h3>Verification</h3>
-          <p className="pre">{result.verification}</p>
+          <Markdown text={result.verification} />
         </div>
       )}
 
@@ -367,7 +372,7 @@ function ResultPanel({ result }: { result: import("../types").ResultPayload }) {
 
       <details>
         <summary>Full report</summary>
-        <p className="pre">{result.final_answer}</p>
+        <Markdown text={result.final_answer} />
       </details>
     </section>
   );
