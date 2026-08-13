@@ -1,167 +1,385 @@
+/* Latin-only subsets — the full weight files pull in Cyrillic, Greek,
+   Vietnamese, etc. this app has no use for and shouldn't ship to users. */
+@import "@fontsource/inter/latin-400.css";
+@import "@fontsource/inter/latin-500.css";
+@import "@fontsource/inter/latin-600.css";
+@import "@fontsource/jetbrains-mono/latin-400.css";
+@import "@fontsource/jetbrains-mono/latin-500.css";
+
 :root {
-  color-scheme: light dark;
-  font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
-  --bg: #0f1115;
-  --panel: #171a21;
-  --border: #2a2e37;
-  --text: #e6e8eb;
-  --muted: #8b93a1;
-  --accent: #5aa9ff;
+  color-scheme: dark;
+
+  --bg: #0a0c10;
+  --surface: #12151b;
+  --surface-elevated: #171b23;
+  --border: #232732;
+  --border-strong: #2e3440;
+
+  --text-primary: #e8eaed;
+  --text-secondary: #9aa4b2;
+  --text-muted: #5b6472;
+
+  --accent: #4c8dff;
+  --accent-dim: #4c8dff26;
+  --success: #3fbf7f;
+  --success-dim: #3fbf7f1f;
+  --warning: #e0a83e;
+  --warning-dim: #e0a83e1f;
+  --danger: #e5484d;
+  --danger-dim: #e5484d1f;
+  --info: #8b7cf6;
+
+  --font-ui: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, "Cascadia Code", Consolas, monospace;
+
+  --radius: 6px;
 }
 
 * {
   box-sizing: border-box;
 }
 
+html,
+body,
+#root {
+  height: 100%;
+}
+
 body {
   margin: 0;
   background: var(--bg);
-  color: var(--text);
+  color: var(--text-primary);
+  font-family: var(--font-ui);
+  font-size: 13px;
+  line-height: 1.45;
 }
 
-.page {
-  max-width: 860px;
-  margin: 0 auto;
-  padding: 2rem 1.25rem 4rem;
+button,
+input,
+textarea {
+  font-family: inherit;
 }
 
-header {
+/* -- shell -------------------------------------------------------------- */
+
+.app-shell {
+  display: grid;
+  grid-template-rows: auto 1fr;
+  height: 100vh;
+}
+
+.topbar {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
-  margin-bottom: 1.5rem;
+  gap: 1rem;
+  padding: 0.6rem 1.1rem;
+  border-bottom: 1px solid var(--border);
+  background: var(--surface);
 }
 
-h1 {
-  font-size: 1.4rem;
+.topbar h1 {
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
   margin: 0;
 }
 
 .status-badge {
-  font-size: 0.75rem;
-  padding: 0.2rem 0.6rem;
+  font-size: 10px;
+  font-weight: 600;
+  padding: 0.15rem 0.5rem;
   border-radius: 999px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-family: var(--font-mono);
+}
+
+.status-open {
+  background: var(--success-dim);
+  color: var(--success);
+}
+
+.status-connecting {
+  background: var(--warning-dim);
+  color: var(--warning);
+}
+
+.status-closed {
+  background: var(--danger-dim);
+  color: var(--danger);
+}
+
+.stat-strip {
+  display: flex;
+  gap: 0.4rem;
+  margin-left: auto;
+}
+
+.stat-chip {
+  display: flex;
+  align-items: baseline;
+  gap: 0.35rem;
+  padding: 0.25rem 0.6rem;
+  background: var(--surface-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+
+.stat-chip .label {
+  font-size: 10px;
+  color: var(--text-muted);
   text-transform: uppercase;
   letter-spacing: 0.04em;
 }
 
-.status-open {
-  background: #1e3a2a;
-  color: #6fd08c;
+.stat-chip .value {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-primary);
 }
 
-.status-connecting {
-  background: #3a3320;
-  color: #e0c26b;
+.stat-chip.degraded .value {
+  color: var(--warning);
 }
 
-.status-closed {
-  background: #3a1e1e;
-  color: #e08080;
+.stat-chip.unreachable .value {
+  color: var(--danger);
+}
+
+/* -- layout --------------------------------------------------------------- */
+
+.workspace {
+  display: grid;
+  grid-template-columns: 340px 1fr;
+  min-height: 0;
+}
+
+.sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 1rem;
+  border-right: 1px solid var(--border);
+  overflow-y: auto;
+}
+
+.session-panel {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  overflow: hidden;
+}
+
+@media (max-width: 860px) {
+  .workspace {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto 1fr;
+  }
+  .sidebar {
+    border-right: none;
+    border-bottom: 1px solid var(--border);
+  }
+}
+
+/* -- request form ----------------------------------------------------------- */
+
+.panel {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 0.85rem;
 }
 
 .request-form {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
-  background: var(--panel);
-  border: 1px solid var(--border);
-  border-radius: 10px;
-  padding: 1rem;
+  gap: 0.4rem;
 }
 
-label {
-  font-size: 0.85rem;
-  color: var(--muted);
+.request-form label {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
 }
 
 textarea,
 input[type="text"] {
   background: var(--bg);
-  color: var(--text);
+  color: var(--text-primary);
   border: 1px solid var(--border);
-  border-radius: 6px;
-  padding: 0.6rem;
-  font-family: ui-monospace, "Cascadia Code", monospace;
-  font-size: 0.85rem;
+  border-radius: var(--radius);
+  padding: 0.5rem 0.6rem;
+  font-family: var(--font-mono);
+  font-size: 12px;
   resize: vertical;
+}
+
+textarea:focus,
+input[type="text"]:focus {
+  outline: none;
+  border-color: var(--accent);
 }
 
 .form-actions {
   display: flex;
-  gap: 0.5rem;
-  margin-top: 0.25rem;
+  gap: 0.4rem;
+  margin-top: 0.15rem;
 }
 
 button {
   background: var(--accent);
-  color: #0b1220;
+  color: #06101f;
   border: none;
-  border-radius: 6px;
-  padding: 0.55rem 1.1rem;
+  border-radius: var(--radius);
+  padding: 0.45rem 0.9rem;
   font-weight: 600;
+  font-size: 12px;
   cursor: pointer;
 }
 
+button:hover:not(:disabled) {
+  filter: brightness(1.08);
+}
+
 button:disabled {
-  opacity: 0.4;
+  opacity: 0.35;
   cursor: not-allowed;
 }
 
 button[type="button"] {
   background: transparent;
-  color: var(--text);
-  border: 1px solid var(--border);
+  color: var(--text-secondary);
+  border: 1px solid var(--border-strong);
 }
 
+/* -- recent sessions ---------------------------------------------------- */
+
+.recent-header {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-bottom: 0.5rem;
+}
+
+.recent-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.recent-item {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  width: 100%;
+  text-align: left;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: var(--radius);
+  padding: 0.4rem 0.5rem;
+  color: var(--text-secondary);
+  font-size: 11.5px;
+  font-family: var(--font-mono);
+}
+
+.recent-item:hover {
+  background: var(--surface-elevated);
+  border-color: var(--border);
+}
+
+.recent-item .dot {
+  flex: none;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+}
+
+.recent-item .dot.verified {
+  background: var(--success);
+}
+
+.recent-item .dot.unverified {
+  background: var(--warning);
+}
+
+.recent-item .preview {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.recent-empty {
+  color: var(--text-muted);
+  font-size: 11.5px;
+}
+
+/* -- banners -------------------------------------------------------------- */
+
 .banner {
-  margin-top: 1rem;
-  padding: 0.6rem 0.9rem;
-  border-radius: 6px;
-  font-size: 0.9rem;
+  margin: 0.75rem 1rem 0;
+  padding: 0.5rem 0.75rem;
+  border-radius: var(--radius);
+  font-size: 12px;
+  border: 1px solid;
 }
 
 .banner-warning {
-  background: #3a3320;
-  color: #e0c26b;
+  background: var(--warning-dim);
+  color: var(--warning);
+  border-color: var(--warning);
 }
 
 .banner-fatal {
-  background: #3a1e1e;
-  color: #e08080;
+  background: var(--danger-dim);
+  color: var(--danger);
+  border-color: var(--danger);
 }
 
+/* -- log ------------------------------------------------------------------ */
+
 .log {
-  margin-top: 1.5rem;
-  font-family: ui-monospace, "Cascadia Code", monospace;
-  font-size: 0.85rem;
-  line-height: 1.5;
+  flex: 1;
+  overflow-y: auto;
+  padding: 0.9rem 1.1rem;
+  font-family: var(--font-mono);
+  font-size: 12.5px;
+  line-height: 1.55;
+}
+
+.log-empty {
+  color: var(--text-muted);
+  font-style: italic;
 }
 
 .log p {
-  margin: 0.2rem 0;
+  margin: 0.15rem 0;
   white-space: pre-wrap;
   word-break: break-word;
 }
 
 .marker {
-  color: var(--muted);
+  color: var(--text-muted);
 }
 
 .step-tool-call {
-  color: #e0c26b;
+  color: var(--warning);
 }
 
 .step-tool-result {
-  color: var(--muted);
+  color: var(--text-secondary);
 }
 
 .step-verification {
-  color: #c58bff;
+  color: var(--info);
 }
 
 .step-error {
-  color: #e08080;
+  color: var(--danger);
   font-weight: 600;
 }
 
@@ -171,37 +389,59 @@ button[type="button"] {
 }
 
 .step-reasoning {
-  color: var(--text);
-  font-family: inherit;
+  color: var(--text-primary);
 }
 
+/* -- result --------------------------------------------------------------- */
+
 .result {
-  margin-top: 1.5rem;
-  background: var(--panel);
-  border: 1px solid var(--border);
-  border-radius: 10px;
-  padding: 1rem 1.25rem;
+  margin: 0.75rem 1.1rem 1.1rem;
+  background: var(--surface-elevated);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius);
+  padding: 0.9rem 1.1rem;
 }
 
 .result-failed {
-  border-color: #4a2323;
+  border-color: var(--danger);
 }
 
 .result h2 {
-  font-size: 1.05rem;
-  margin-top: 0;
+  font-size: 13px;
+  font-weight: 600;
+  margin: 0 0 0.6rem;
+  font-family: var(--font-mono);
 }
 
 .result h3 {
-  font-size: 0.85rem;
+  font-size: 10.5px;
+  font-weight: 600;
   text-transform: uppercase;
-  letter-spacing: 0.03em;
-  color: var(--muted);
-  margin-bottom: 0.3rem;
+  letter-spacing: 0.04em;
+  color: var(--text-muted);
+  margin: 0.7rem 0 0.25rem;
+}
+
+.result p {
+  margin: 0;
+  font-size: 12.5px;
+}
+
+.result ul {
+  margin: 0;
+  padding-left: 1.1rem;
+  font-size: 12px;
+}
+
+.result summary {
+  cursor: pointer;
+  font-size: 11px;
+  color: var(--text-secondary);
+  margin-top: 0.7rem;
 }
 
 .pre {
   white-space: pre-wrap;
-  font-family: ui-monospace, "Cascadia Code", monospace;
-  font-size: 0.85rem;
+  font-family: var(--font-mono);
+  font-size: 12px;
 }
