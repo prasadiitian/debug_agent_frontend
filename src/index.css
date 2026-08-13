@@ -84,6 +84,18 @@ textarea {
   margin: 0;
 }
 
+.brand-link {
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: var(--text-primary);
+  text-decoration: none;
+}
+
+.brand-link:hover {
+  color: var(--accent);
+}
+
 .status-badge {
   font-size: 10px;
   font-weight: 600;
@@ -444,4 +456,282 @@ button[type="button"] {
   white-space: pre-wrap;
   font-family: var(--font-mono);
   font-size: 12px;
+}
+
+/* ==========================================================================
+   Landing page — a marketing surface in front of the dashboard. Generous
+   whitespace and larger type are intentional here, unlike the dashboard:
+   this page is read once and scanned, not worked in all day.
+   ========================================================================== */
+
+.landing {
+  min-height: 100vh;
+  background: var(--bg);
+  color: var(--text-primary);
+}
+
+.landing-nav {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 1.5rem;
+  border-bottom: 1px solid var(--border);
+  background: color-mix(in srgb, var(--bg) 88%, transparent);
+  backdrop-filter: blur(8px);
+}
+
+.landing-brand {
+  font-size: 16px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+.landing-nav-links {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+}
+
+.landing-nav-links a {
+  color: var(--text-secondary);
+  text-decoration: none;
+  font-size: 13px;
+}
+
+.landing-nav-links a:hover {
+  color: var(--text-primary);
+}
+
+.landing-nav-cta {
+  background: var(--accent);
+  color: #06101f;
+  padding: 0.4rem 0.9rem;
+  border-radius: var(--radius);
+  font-weight: 600;
+}
+
+.landing-nav-cta:hover {
+  color: #06101f;
+  filter: brightness(1.08);
+}
+
+.landing-hero {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 5.5rem 1.5rem 4.5rem;
+  text-align: center;
+}
+
+.landing-eyebrow {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--accent);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin: 0 0 1rem;
+}
+
+.landing-hero h1 {
+  font-size: clamp(2rem, 4vw, 2.75rem);
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+  margin: 0 0 1.1rem;
+}
+
+.landing-subhead {
+  font-size: 16px;
+  line-height: 1.6;
+  color: var(--text-secondary);
+  max-width: 560px;
+  margin: 0 auto 2rem;
+}
+
+.landing-cta-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.85rem;
+  flex-wrap: wrap;
+}
+
+.landing-cta-primary {
+  background: var(--accent);
+  color: #06101f;
+  padding: 0.7rem 1.4rem;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 14px;
+  text-decoration: none;
+}
+
+.landing-cta-primary:hover {
+  filter: brightness(1.08);
+}
+
+.landing-cta-secondary {
+  color: var(--text-secondary);
+  border: 1px solid var(--border-strong);
+  padding: 0.68rem 1.3rem;
+  border-radius: 8px;
+  font-size: 14px;
+  text-decoration: none;
+}
+
+.landing-cta-secondary:hover {
+  color: var(--text-primary);
+  border-color: var(--text-secondary);
+}
+
+.landing-section {
+  max-width: 980px;
+  margin: 0 auto;
+  padding: 3.5rem 1.5rem;
+}
+
+.landing-section h2 {
+  text-align: center;
+  font-size: 1.4rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  margin: 0 0 2.25rem;
+}
+
+.landing-section-alt {
+  max-width: none;
+  background: var(--surface);
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+}
+
+.landing-section-alt > * {
+  max-width: 980px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.landing-steps {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.25rem;
+}
+
+.landing-step {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 1.4rem;
+}
+
+.landing-step-index {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--accent-dim);
+  color: var(--accent);
+  font-family: var(--font-mono);
+  font-weight: 600;
+  font-size: 13px;
+  margin-bottom: 0.9rem;
+}
+
+.landing-step h3 {
+  font-size: 15px;
+  font-weight: 600;
+  margin: 0 0 0.5rem;
+}
+
+.landing-step p {
+  font-size: 13.5px;
+  line-height: 1.55;
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+.landing-feature-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1.25rem;
+}
+
+.landing-feature {
+  background: var(--surface-elevated);
+  border: 1px solid var(--border-strong);
+  border-radius: 10px;
+  padding: 1.4rem;
+}
+
+.landing-feature h3 {
+  font-size: 15px;
+  font-weight: 600;
+  margin: 0 0 0.5rem;
+}
+
+.landing-feature p {
+  font-size: 13.5px;
+  line-height: 1.55;
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+.landing-stack {
+  text-align: center;
+}
+
+.landing-badges {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.6rem;
+}
+
+.landing-badge {
+  font-family: var(--font-mono);
+  font-size: 12.5px;
+  color: var(--text-secondary);
+  border: 1px solid var(--border-strong);
+  border-radius: 999px;
+  padding: 0.4rem 0.9rem;
+}
+
+.landing-footer {
+  max-width: 980px;
+  margin: 0 auto;
+  padding: 2.5rem 1.5rem 3.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  border-top: 1px solid var(--border);
+  flex-wrap: wrap;
+}
+
+.landing-footer p {
+  font-size: 13px;
+  color: var(--text-muted);
+  margin: 0;
+}
+
+.landing-footer a {
+  color: var(--text-secondary);
+}
+
+.landing-footer a:hover {
+  color: var(--text-primary);
+}
+
+@media (max-width: 760px) {
+  .landing-steps,
+  .landing-feature-grid {
+    grid-template-columns: 1fr;
+  }
+  .landing-hero {
+    padding: 3.5rem 1.25rem 3rem;
+  }
 }
