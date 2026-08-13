@@ -37,11 +37,21 @@ changes, update both.
 
 ## Status
 
-Scaffolded and wired to the real backend protocol, but **not yet run** —
-this machine doesn't have Node.js installed, so `npm install` / `npm run dev`
-haven't been exercised. Install Node 20+ and run it once before trusting the
-UI actually renders correctly; treat this as reviewed-but-unverified code,
-not tested code.
+`npm run build`, `npm run lint`, and the Vite dev server all run clean. The
+message-handling logic in `useDebugSession.ts` (the `appendStep`/
+`handleMessage` reducer) has been round-tripped against a real live session
+on the real backend — a script outside this repo drove the actual
+`/ws/debug` endpoint through a full session and fed every real frame through
+a copy of that same reducer logic, confirming all five step types
+(`session_start`, `reasoning`, `tool_call`, `tool_result`, `verification`)
+parse correctly and reasoning deltas merge as intended, with no unrecognised
+frame types.
+
+What that verification does **not** cover: the app has not been opened in an
+actual browser, so the JSX/CSS rendering itself — layout, whether the form
+actually re-enables after a session, whether `<details>` expands — is
+unconfirmed. The state-management logic is proven against real data; the DOM
+output built from that state is not yet eyeballed.
 
 ## Layout
 
