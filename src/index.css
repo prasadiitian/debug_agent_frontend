@@ -390,6 +390,82 @@ button:disabled {
   background: var(--danger);
 }
 
+.dash-composer.drag-active {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-dim);
+}
+
+.dash-attach-btn {
+  flex: none;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  background: transparent;
+  border: 1px solid var(--border-strong);
+  color: var(--text-secondary);
+}
+
+.dash-attach-btn:hover:not(:disabled) {
+  filter: none;
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.dash-attachments {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  padding: 0 0.1rem 0.6rem;
+}
+
+.dash-attachment-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  background: var(--surface);
+  border: 1px solid var(--border-strong);
+  border-radius: 999px;
+  padding: 0.25rem 0.4rem 0.25rem 0.7rem;
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  color: var(--text-primary);
+}
+
+.dash-attachment-chip .size {
+  color: var(--text-muted);
+}
+
+.dash-attachment-chip button {
+  flex: none;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--border);
+  color: var(--text-secondary);
+  font-size: 12px;
+  line-height: 1;
+}
+
+.dash-attachment-chip button:hover {
+  background: var(--danger);
+  color: #ffffff;
+}
+
+.dash-attach-error {
+  margin: 0 0.1rem 0.5rem;
+  font-size: 11.5px;
+  color: var(--danger);
+}
+
 /* -- banners -------------------------------------------------------------- */
 
 .banner {

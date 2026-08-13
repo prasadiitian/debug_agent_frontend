@@ -1,12 +1,13 @@
 import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
+import { readAttachments, formatBytes } from "../attachments";
 import { Logomark } from "../Logomark";
 import type { LogEntry } from "../useDebugSession";
 import { useDebugSession } from "../useDebugSession";
 import { useHealth } from "../useHealth";
 import type { RecentSession } from "../useRecentSessions";
 import { useRecentSessions } from "../useRecentSessions";
-import type { StepType } from "../types";
+import type { FileAttachment, StepType } from "../types";
 
 const WS_URL = import.meta.env.VITE_WS_URL ?? "ws://127.0.0.1:8000/ws/debug";
 const HEALTH_URL = deriveHealthUrl(WS_URL);
@@ -49,10 +50,24 @@ export default function Dashboard() {
 
   const [errorText, setErrorText] = useState("");
   const [context, setContext] = useState("");
+  const [attachments, setAttachments] = useState<FileAttachment[]>([]);
+  const [attachError, setAttachError] = useState<string | null>(null);
+  const [dragActive, setDragActive] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const lastRequestRef = useRef({ errorText: "", context: "" });
 
   const canSubmit = status === "open" && !busy && errorText.trim().length > 0;
   const hasContent = entries.length > 0 || result !== null;
+
+  const addFiles = async (incoming: FileList | File[]) => {
+    const { accepted, error } = await readAttachments(incoming, attachments);
+    setAttachError(error);
+    if (accepted.length > 0) setAttachments((prev) => [...prev, ...accepted]);
+  };
+
+  const removeAttachment = (path: string) => {
+    setAttachments((prev) => prev.filter((f) => f.path !== path));
+  };
 
   useEffect(() => {
     if (!result) return;
@@ -68,7 +83,9 @@ export default function Dashboard() {
   const doSubmit = () => {
     if (!canSubmit) return;
     lastRequestRef.current = { errorText, context };
-    submit(errorText, context);
+    submit(errorText, context, attachments);
+    setAttachments([]);
+    setAttachError(null);
   };
 
   const handleSubmit = (event: React.FormEvent) => {
@@ -87,6 +104,8 @@ export default function Dashboard() {
     clear();
     setErrorText("");
     setContext("");
+    setAttachments([]);
+    setAttachError(null);
   };
 
   return (
@@ -165,7 +184,44 @@ export default function Dashboard() {
         </div>
 
         <div className="dash-composer-wrap">
-          <form className="dash-composer" onSubmit={handleSubmit}>
+          <form
+            className={`dash-composer ${dragActive ? "drag-active" : ""}`}
+            onSubmit={handleSubmit}
+            onDragOver={(event) => {
+              event.preventDefault();
+              if (!busy) setDragActive(true);
+            }}
+            onDragLeave={() => setDragActive(false)}
+            onDrop={(event) => {
+              event.preventDefault();
+              setDragActive(false);
+              if (!busy && event.dataTransfer.files.length > 0) {
+                void addFiles(event.dataTransfer.files);
+              }
+            }}
+          >
+            {attachments.length > 0 && (
+              <div className="dash-attachments">
+                {attachments.map((file) => (
+                  <span className="dash-attachment-chip" key={file.path}>
+                    {file.path}
+                    <span className="size">
+                      {formatBytes(new Blob([file.content]).size)}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => removeAttachment(file.path)}
+                      aria-label={`Remove ${file.path}`}
+                    >
+                      ×
+                    </button>
+                  </span>
+                ))}
+              </div>
+            )}
+
+            {attachError && <p className="dash-attach-error">{attachError}</p>}
+
             <label htmlFor="error-input" className="sr-only">
               Error or stack trace
             </label>
@@ -174,7 +230,7 @@ export default function Dashboard() {
               rows={3}
               value={errorText}
               onChange={(event) => setErrorText(event.target.value)}
-              placeholder="Paste an error or traceback…"
+              placeholder="Paste an error or traceback… (or drop a file)"
               disabled={busy}
               onKeyDown={(event) => {
                 if (event.key === "Enter" && !event.shiftKey) {
@@ -184,6 +240,27 @@ export default function Dashboard() {
               }}
             />
             <div className="dash-composer-row">
+              <input
+                ref={fileInputRef}
+                type="file"
+                multiple
+                className="sr-only"
+                onChange={(event) => {
+                  if (event.target.files) void addFiles(event.target.files);
+                  event.target.value = "";
+                }}
+              />
+              <button
+                type="button"
+                className="dash-attach-btn"
+                onClick={() => fileInputRef.current?.click()}
+                disabled={busy}
+                title="Attach files"
+                aria-label="Attach files"
+              >
+                📎
+              </button>
+
               <label htmlFor="context-input" className="sr-only">
                 Context
               </label>

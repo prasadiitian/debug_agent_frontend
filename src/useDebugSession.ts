@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import type {
   DebugRequestMessage,
   ErrorMessage,
+  FileAttachment,
   ResultPayload,
   ServerMessage,
   StepType,
@@ -65,29 +66,33 @@ export function useDebugSession(wsUrl: string) {
     };
   }, [wsUrl]);
 
-  const submit = useCallback((error: string, context: string) => {
-    const socket = socketRef.current;
-    if (!socket || socket.readyState !== WebSocket.OPEN) return;
+  const submit = useCallback(
+    (error: string, context: string, files?: FileAttachment[]) => {
+      const socket = socketRef.current;
+      if (!socket || socket.readyState !== WebSocket.OPEN) return;
 
-    const requestId = crypto.randomUUID();
-    requestIdRef.current = requestId;
+      const requestId = crypto.randomUUID();
+      requestIdRef.current = requestId;
 
-    setState((prev) => ({
-      ...prev,
-      entries: [],
-      result: null,
-      serverError: null,
-      busy: true,
-    }));
+      setState((prev) => ({
+        ...prev,
+        entries: [],
+        result: null,
+        serverError: null,
+        busy: true,
+      }));
 
-    const request: DebugRequestMessage = {
-      type: "debug_request",
-      error,
-      context,
-      request_id: requestId,
-    };
-    socket.send(JSON.stringify(request));
-  }, []);
+      const request: DebugRequestMessage = {
+        type: "debug_request",
+        error,
+        context,
+        request_id: requestId,
+        files: files && files.length > 0 ? files : undefined,
+      };
+      socket.send(JSON.stringify(request));
+    },
+    [],
+  );
 
   const cancel = useCallback(() => {
     const socket = socketRef.current;

@@ -9,11 +9,24 @@ export type StepType =
   | "verification"
   | "error";
 
+export interface FileAttachment {
+  path: string;
+  content: string;
+}
+
+// Must match debug_agent/interface/schemas.py's MAX_FILES / MAX_FILE_BYTES /
+// MAX_TOTAL_BYTES — checked client-side too so a rejection is instant
+// instead of a round trip to the server.
+export const MAX_FILES = 20;
+export const MAX_FILE_BYTES = 500_000;
+export const MAX_TOTAL_BYTES = 2_000_000;
+
 export interface DebugRequestMessage {
   type: "debug_request";
   error: string;
   context?: string;
   request_id?: string;
+  files?: FileAttachment[];
 }
 
 export interface CancelMessage {
