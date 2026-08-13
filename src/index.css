@@ -21,6 +21,7 @@
 
   --accent: #4c8dff;
   --accent-dim: #4c8dff26;
+  --accent-contrast: #06101f; /* text color for anything sitting on --accent */
   --success: #3fbf7f;
   --success-dim: #3fbf7f1f;
   --warning: #e0a83e;
@@ -243,7 +244,7 @@ input[type="text"]:focus {
 
 button {
   background: var(--accent);
-  color: #06101f;
+  color: var(--accent-contrast);
   border: none;
   border-radius: var(--radius);
   padding: 0.45rem 0.9rem;
@@ -465,6 +466,31 @@ button[type="button"] {
    ========================================================================== */
 
 .landing {
+  /* Light theme, scoped to this page only — the dashboard stays dark since
+     that's the expected look for a developer/ops tool, but a marketing page
+     reads as more "corporate SaaS" in light mode. Re-declaring the same
+     custom-property names means every rule below (already written against
+     var(--bg)/var(--text-primary)/etc.) picks this up automatically. */
+  color-scheme: light;
+  --bg: #ffffff;
+  --surface: #f6f8fb;
+  --surface-elevated: #ffffff;
+  --border: #e2e6ed;
+  --border-strong: #cdd4e0;
+  --text-primary: #101828;
+  --text-secondary: #475467;
+  --text-muted: #8a94a6;
+  --accent: #2554d6;
+  --accent-dim: #2554d61a;
+  --accent-contrast: #ffffff;
+  --success: #17845a;
+  --success-dim: #17845a1a;
+  --warning: #b7791f;
+  --warning-dim: #b7791f1a;
+  --danger: #d92d20;
+  --danger-dim: #d92d201a;
+  --info: #6d4fe0;
+
   min-height: 100vh;
   background: var(--bg);
   color: var(--text-primary);
@@ -507,14 +533,14 @@ button[type="button"] {
 
 .landing-nav-cta {
   background: var(--accent);
-  color: #06101f;
+  color: var(--accent-contrast);
   padding: 0.4rem 0.9rem;
   border-radius: var(--radius);
   font-weight: 600;
 }
 
 .landing-nav-cta:hover {
-  color: #06101f;
+  color: var(--accent-contrast);
   filter: brightness(1.08);
 }
 
@@ -560,7 +586,7 @@ button[type="button"] {
 
 .landing-cta-primary {
   background: var(--accent);
-  color: #06101f;
+  color: var(--accent-contrast);
   padding: 0.7rem 1.4rem;
   border-radius: 8px;
   font-weight: 600;
