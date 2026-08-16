@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { readAttachments, formatBytes } from "../attachments";
 import { Logomark } from "../Logomark";
@@ -8,7 +8,15 @@ import { useDebugSession } from "../useDebugSession";
 import { useHealth } from "../useHealth";
 import type { RecentSession } from "../useRecentSessions";
 import { useRecentSessions } from "../useRecentSessions";
+import { groupEntries } from "../toolSteps";
 import type { FileAttachment, StepType } from "../types";
+
+const TOOL_META: Record<string, { icon: string; label: string }> = {
+  search_docs: { icon: "🔍", label: "Searched documentation" },
+  search_github_issues: { icon: "🐙", label: "Searched resolved issues" },
+  read_file: { icon: "📄", label: "Read a file" },
+  run_in_sandbox: { icon: "🧪", label: "Ran the fix in a sandbox" },
+};
 
 const WS_URL = import.meta.env.VITE_WS_URL ?? "ws://127.0.0.1:8000/ws/debug";
 const HEALTH_URL = deriveHealthUrl(WS_URL);
@@ -59,6 +67,7 @@ export default function Dashboard() {
 
   const canSubmit = status === "open" && !busy && errorText.trim().length > 0;
   const hasContent = entries.length > 0 || result !== null;
+  const renderItems = useMemo(() => groupEntries(entries), [entries]);
 
   const addFiles = async (incoming: FileList | File[]) => {
     const { accepted, error } = await readAttachments(incoming, attachments);
@@ -171,9 +180,13 @@ export default function Dashboard() {
               )}
 
               <div className="log">
-                {entries.map((entry) => (
-                  <LogLine key={entry.id} entry={entry} />
-                ))}
+                {renderItems.map((item) =>
+                  item.kind === "tool" ? (
+                    <ToolStep key={item.key} call={item.call} result={item.result} />
+                  ) : (
+                    <LogLine key={item.key} entry={item.entry} />
+                  ),
+                )}
                 {busy && entries.length === 0 && (
                   <p className="log-empty">Connecting to the agent…</p>
                 )}
@@ -286,6 +299,37 @@ export default function Dashboard() {
           </form>
         </div>
       </main>
+    </div>
+  );
+}
+
+function ToolStep({ call, result }: { call: LogEntry; result: LogEntry | null }) {
+  const [expanded, setExpanded] = useState(false);
+  const tool = String(call.detail.tool ?? "");
+  const meta = TOOL_META[tool] ?? { icon: "⚙", label: tool || "Tool call" };
+  const done = result !== null;
+
+  return (
+    <div className={`tool-step ${done ? "done" : "running"}`}>
+      <button
+        type="button"
+        className="tool-step-summary"
+        onClick={() => setExpanded((value) => !value)}
+        aria-expanded={expanded}
+      >
+        <span className="tool-icon">{meta.icon}</span>
+        <span className="tool-label">{meta.label}</span>
+        <span className="tool-state">{done ? "✓" : "…"}</span>
+        <span className="chevron">{expanded ? "▾" : "▸"}</span>
+      </button>
+      {expanded && (
+        <div className="tool-step-detail">
+          {typeof call.detail.input === "string" && call.detail.input && (
+            <pre className="tool-step-args">{call.detail.input}</pre>
+          )}
+          {result && <pre className="tool-step-result">{result.content}</pre>}
+        </div>
+      )}
     </div>
   );
 }

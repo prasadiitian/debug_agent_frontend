@@ -502,6 +502,84 @@ button:disabled {
   font-style: italic;
 }
 
+/* -- tool steps --------------------------------------------------------------
+   A tool_call and its matching result collapse into one compact, expandable
+   chip (see toolSteps.ts) instead of dumping raw arguments and result text
+   inline between paragraphs of reasoning.
+   ========================================================================== */
+
+.tool-step {
+  margin: 0.5rem 0;
+}
+
+.tool-step-summary {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 0.3rem 0.7rem 0.3rem 0.55rem;
+  font-family: var(--font-ui);
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-secondary);
+}
+
+.tool-step-summary:hover {
+  filter: none;
+  border-color: var(--border-strong);
+  color: var(--text-primary);
+}
+
+.tool-step.running .tool-step-summary {
+  color: var(--accent);
+  border-color: var(--accent-dim);
+}
+
+.tool-icon {
+  font-size: 12px;
+  line-height: 1;
+}
+
+.tool-state {
+  color: var(--success);
+  font-family: var(--font-mono);
+}
+
+.tool-step.running .tool-state {
+  color: var(--text-muted);
+}
+
+.chevron {
+  color: var(--text-muted);
+  font-size: 10px;
+}
+
+.tool-step-detail {
+  margin: 0.4rem 0 0 0.3rem;
+  padding-left: 0.7rem;
+  border-left: 2px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.tool-step-args,
+.tool-step-result {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 0.5rem 0.65rem;
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  white-space: pre-wrap;
+  word-break: break-word;
+  color: var(--text-secondary);
+  max-height: 260px;
+  overflow-y: auto;
+}
+
 .log p {
   margin: 0.15rem 0;
   white-space: pre-wrap;
