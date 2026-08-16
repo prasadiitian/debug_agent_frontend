@@ -396,28 +396,11 @@ function ResultPanel({ result }: { result: import("../types").ResultPayload }) {
         </div>
       )}
 
-      {result.verification && (
-        <div>
-          <h3>Verification</h3>
-          <Markdown text={result.verification} />
-        </div>
-      )}
-
-      {result.sources.length > 0 && (
-        <div>
-          <h3>Sources</h3>
-          <ul>
-            {result.sources.map((source) => (
-              <li key={source}>{source}</li>
-            ))}
-          </ul>
-        </div>
-      )}
-
-      <details>
-        <summary>Full report</summary>
+      {!result.root_cause && !result.proposed_fix && result.final_answer && (
+        // Model didn't use the labelled sections — show the raw answer
+        // rather than a misleadingly empty panel.
         <Markdown text={result.final_answer} />
-      </details>
+      )}
     </section>
   );
 }

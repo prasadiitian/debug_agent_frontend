@@ -56,8 +56,6 @@ export interface ResultPayload {
   error_input: string;
   root_cause: string;
   proposed_fix: string;
-  verification: string;
-  sources: string[];
   verified: boolean;
   attempts_used: number;
   final_answer: string;
