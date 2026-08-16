@@ -1,9 +1,14 @@
 # Debug Agent — Frontend
 
 React + Vite + TypeScript UI for [debug_agent](https://github.com/prasadiitian/debug_agent)'s
-WebSocket interface. Submits an error/stack trace and streams the agent's
-reasoning, tool calls, and sandbox verification live, exactly as the CLI does
-— same wire protocol, different renderer.
+WebSocket interface. Submit an error/stack trace (optionally with attached
+source files), and watch the agent's retrieval, tool use, and sandbox
+verification stream in live — same wire protocol the CLI uses, different
+renderer.
+
+- `/` — landing page
+- `/app` — the dashboard: sidebar with session history, a live transcript,
+  and a composer that accepts pasted text, drag-and-drop, or attached files
 
 ## Setup
 
@@ -26,40 +31,33 @@ Then open the Vite dev server URL (printed on `npm run dev`, typically
 ## How it works
 
 One `WebSocket` connection to `ws://127.0.0.1:8000/ws/debug` per page load
-(`src/useDebugSession.ts`). Submitting the form sends a `debug_request`
-frame; the hook normalises the resulting `step`/`complete`/`error` frames
-into React state — merging consecutive `reasoning` deltas into one entry the
-same way the CLI does, so the wire protocol only needs to be understood once.
+(`src/useDebugSession.ts`). Submitting the composer sends a `debug_request`
+frame, optionally carrying attached files as `{path, content}` pairs — the
+server has no access to a browser client's filesystem, so this is how the
+agent's `read_file` tool gets anything real to read. The hook normalises the
+resulting `step`/`complete`/`error` frames into React state, merging
+consecutive `reasoning` deltas into one entry and pairing each tool call with
+its result (`src/toolSteps.ts`) so the transcript reads as a clean narrative
+rather than a raw event log.
 
 The wire types in `src/types.ts` are a hand-kept mirror of
 `debug_agent/interface/schemas.py` in the backend repo. If that schema
 changes, update both.
 
-## Status
-
-`npm run build`, `npm run lint`, and the Vite dev server all run clean. The
-message-handling logic in `useDebugSession.ts` (the `appendStep`/
-`handleMessage` reducer) has been round-tripped against a real live session
-on the real backend — a script outside this repo drove the actual
-`/ws/debug` endpoint through a full session and fed every real frame through
-a copy of that same reducer logic, confirming all five step types
-(`session_start`, `reasoning`, `tool_call`, `tool_result`, `verification`)
-parse correctly and reasoning deltas merge as intended, with no unrecognised
-frame types.
-
-What that verification does **not** cover: the app has not been opened in an
-actual browser, so the JSX/CSS rendering itself — layout, whether the form
-actually re-enables after a session, whether `<details>` expands — is
-unconfirmed. The state-management logic is proven against real data; the DOM
-output built from that state is not yet eyeballed.
-
 ## Layout
 
 ```
 src/
-├── types.ts             # wire schema, mirrors schemas.py
-├── useDebugSession.ts    # WebSocket connection + state normalisation
-├── App.tsx               # form, live step log, final report
-├── index.css
-└── main.tsx
+├── pages/
+│   ├── Landing.tsx        # marketing page at "/"
+│   └── Dashboard.tsx      # the app at "/app"
+├── types.ts                # wire schema, mirrors schemas.py
+├── useDebugSession.ts       # WebSocket connection + state normalisation
+├── toolSteps.ts             # pairs tool_call with its result for rendering
+├── attachments.ts           # client-side file-attach validation
+├── useHealth.ts             # polls GET /health for the sidebar status line
+├── useRecentSessions.ts     # session history, localStorage-backed
+├── Markdown.tsx              # renders agent output as real Markdown
+├── Logomark.tsx
+└── index.css
 ```
